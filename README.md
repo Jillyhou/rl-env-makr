@@ -16,44 +16,47 @@ Three tools each solve a piece of this, and none solves the whole:
 The architecture here separates these roles strictly: the LLM proposes, Lean disposes, and faithfulness is declared as an unverified obligation on every row rather than hidden. This is not a limitation of the implementation — it is the correct epistemic status of "a formal statement that might or might not mean what you think it means."
 
 ## The pipeline
-┌──────────────────────────────────────────────────────────────────────┐
-│ LLM generator │ any model: GPT, Claude, Llama, Qwen, local or hosted.│
-└────────┬─────────────────────────────────────────────────────────────┘
+
+│ LLM generator. any model: GPT, Claude, Llama, Qwen, local or hosted.
+|
 │ (prompt, code)
 ▼
-┌──────────────────────────────────────────────────────────────────────┐
-│ AssumptionMiner │ extracts assumption records from (prompt, code).   │
-└────────┬─────────────────────────────────────────────────────────────┘
+
+│ AssumptionMiner extracts assumption records from (prompt, code).   
 │ normalized records
+
 ▼
-┌──────────────────────────────────────────────────────────────────────┐
-│ Proposer │ LLM proposes a Lean STATEMENT per assumption.             │
-│ │ It does NOT write the proof.                                       │
-└────────┬─────────────────────────────────────────────────────────────┘
+
+│ Proposer │ LLM proposes a Lean STATEMENT per assumption. ps. It does NOT write the proof.                                       
 │ candidate .lean files
+
 ▼
-┌──────────────────────────────────────────────────────────────────────┐
-│ Lean type-check │ compiles (with sorry)? → continue                  │
-│ │ fails? → retry or mark not_formalizable                            │
-└────────┬─────────────────────────────────────────────────────────────┘
+
+│ Lean type-check 
+| compiles (with sorry)? → continue                  
+│ fails? → retry or mark not_formalizable                           
 │ type-checked statements
+
 ▼
-┌──────────────────────────────────────────────────────────────────────┐
-│ Tactic portfolio │ omega, linarith, nlinarith, norm_num, simp_all,   │
-│ │ decide. First tactic that closes the goal wins.                    │
-└────────┬─────────────────────────────────────────────────────────────┘
+
+│ Tactic portfolio 
+| omega, linarith, nlinarith, norm_num, simp_all,   
+│ decide. First tactic that closes the goal wins.                    
 │ proved statements
+
 ▼
-┌──────────────────────────────────────────────────────────────────────┐
-│ #print axioms │ the kernel reports every axiom the proof depends.    │
-│ + allowlist │ on. Clean iff ⊆ {propext, Classical.choice, Quot.sound}│
-└──────────────────────────────────────────────────────────────────────┘
+
+│ #print axioms 
+| the kernel reports every axiom the proof depends.    
+│ + allowlist 
+| on. Clean iff ⊆ {propext, Classical.choice, Quot.sound}
 │
+
 ▼
-┌──────────────────────────────────────────────────────────────────────┐
-│ Report │ every row carries faithfulness: "declared".                 │
-│ │ certified | refuted | unverified | not_formalizable                │
-└──────────────────────────────────────────────────────────────────────┘
+
+│ Report 
+| every row carries faithfulness: "declared".                
+│ certified | refuted | unverified | not_formalizable               
 
 The five verdicts:
 
